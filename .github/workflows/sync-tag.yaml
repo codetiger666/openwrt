@@ -51,8 +51,8 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          echo "git remote set-url origin https://$ACCESS_TOKEN@github.com/codetiger666/openwrt.git"
-          git remote set-url origin https://$ACCESS_TOKEN@github.com/codetiger666/openwrt.git
+          echo "git remote set-url origin https://${{ secrets.ACCESS_TOKEN }}@github.com/codetiger666/openwrt.git"
+          git remote set-url origin https://${{ secrets.ACCESS_TOKEN }}@github.com/codetiger666/openwrt.git
           source $HOME/.profile
           tag=$(git tag -l --sort=-creatordate | head -n 1)
           echo "Processing tag: $tag"
@@ -63,9 +63,9 @@ jobs:
             git checkout -b ${tag//v/} $tag
             # 在这里应用你的 patch
             git am ../fingerprint.patch
-            cp ../push.yaml .github/workflows
-            git add .
-            git commit -m "add actions for build"
+            #cp ../push.yaml .github/workflows
+            #git add .
+            #git commit -m "add actions for build"
             git push -u origin ${tag//v/} -f
             git tag -d ${tag}
             git tag ${tag}

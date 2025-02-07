@@ -48,11 +48,7 @@ jobs:
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false')
 
       - name: Apply patch and retag
-        env:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          echo "git remote set-url origin https://${{ secrets.ACCESS_TOKEN }}@github.com/codetiger666/openwrt.git"
-          git remote set-url origin https://${{ secrets.ACCESS_TOKEN }}@github.com/codetiger666/openwrt.git
           source $HOME/.profile
           tag=$(git tag -l --sort=-creatordate | head -n 1)
           echo "Processing tag: $tag"
@@ -63,9 +59,6 @@ jobs:
             git checkout -b ${tag//v/} $tag
             # 在这里应用你的 patch
             git am ../fingerprint.patch
-            #cp ../push.yaml .github/workflows
-            #git add .
-            #git commit -m "add actions for build"
             git push -u origin ${tag//v/} -f
             git tag -d ${tag}
             git tag ${tag}
@@ -73,7 +66,7 @@ jobs:
             echo "触发编译"
             curl -v -X POST \
             https://api.github.com/repos/codetiger666/openwrt/actions/workflows/build.yaml/dispatches \
-            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Authorization: Bearer $GIHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
             -d "{\"ref\":\"$tag\",\"inputs\":{\"version\":\"${tag//v/}\",\"ssh\":\"false\"}}"
           fi

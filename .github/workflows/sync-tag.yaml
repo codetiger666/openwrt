@@ -51,6 +51,7 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
+          echo "git remote set-url origin https://$ACCESS_TOKEN@github.com/codetiger666/openwrt.git"
           git remote set-url origin https://$ACCESS_TOKEN@github.com/codetiger666/openwrt.git
           source $HOME/.profile
           tag=$(git tag -l --sort=-creatordate | head -n 1)

@@ -58,7 +58,6 @@ jobs:
             git checkout -b ${tag//v/} $tag
             # 在这里应用你的 patch
             git am ../fingerprint.patch
-            git push -u origin ${tag//v/} -f
             git tag -d ${tag}
             git tag ${tag}
             git push origin ${tag} -f

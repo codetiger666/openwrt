@@ -62,6 +62,7 @@ jobs:
             cp ../push.yaml .github/workflows
             git add .
             git commit -m "add actions for build"
+            git push -u origin ${tag//v/} -f
             git tag -d ${tag}
             git tag ${tag}
             git push origin ${tag} -f

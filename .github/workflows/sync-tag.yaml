@@ -48,6 +48,8 @@ jobs:
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false')
 
       - name: Apply patch and retag
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
           source $HOME/.profile
           tag=$(git tag -l --sort=-creatordate | head -n 1)

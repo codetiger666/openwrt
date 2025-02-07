@@ -1,9 +1,14 @@
 name: Create GitHub release
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
       - "v*"
+    workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest

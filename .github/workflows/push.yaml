@@ -1,0 +1,13 @@
+name: Create GitHub release
+
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: |
+          echo ${GITHUB_REF#refs/tags/}

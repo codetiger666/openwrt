@@ -1,0 +1,71 @@
+name: sync tags
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:  
+      inputs:
+        ssh:
+          description: '是否开启ssh调试'
+          required: true
+          default: 'false'
+          type: choice
+          options:
+            - 'true'
+            - 'false'
+
+jobs:
+  sync-and-patch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout fork repository
+        uses: actions/checkout@v3
+        with:
+          ref: actions
+          
+      - name: copy patch file
+        run: |
+          cp fingerprint.patch ../
+
+      - name: record lastest tag
+        run: |
+          echo "export lastest_tag=$(curl -s https://api.github.com/repos/codetiger666/openwrt/tags?per_page=1 | jq -r '.[0].name')" >> $HOME/.profile
+
+      - name: Add upstream repository
+        run: |
+          git remote add upstream https://github.com/openwrt/openwrt.git
+          git fetch upstream --tags
+
+      - name: init git
+        run: |
+          git config --global user.email ${{ secrets.email }}
+          git config --global user.name "codetiger666"
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@main
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false')
+
+      - name: Apply patch and retag
+        run: |
+          source $HOME/.profile
+          tag=$(git tag -l --sort=-creatordate | head -n 1)
+          echo "Processing tag: $tag"
+          echo "lastest tag: $lastest_tag"
+          if [ "$lastest_tag" = "$tag" ]; then
+            echo "the new tag is handled";
+          else
+            git checkout -b ${tag//v/} $tag
+            # 在这里应用你的 patch
+            git am ../fingerprint.patch
+            git push -u origin ${tag//v/} -f
+            git tag -d ${tag}
+            git tag ${tag}
+            git push origin ${tag} -f
+          fi
+
+      - name: Remove workflow runs
+        uses: GitRML/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 3

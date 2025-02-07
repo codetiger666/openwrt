@@ -70,6 +70,12 @@ jobs:
             git tag -d ${tag}
             git tag ${tag}
             git push origin ${tag} -f
+            echo "触发编译"
+            curl -v -X POST \
+            https://api.github.com/repos/codetiger666/openwrt/actions/workflows/build.yaml/dispatches \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{\"ref\":\"$tag\",\"inputs\":{\"version\":\"${tag//v/}\",\"ssh\":\"false\"}}"
           fi
 
       - name: Remove workflow runs

@@ -59,7 +59,7 @@ jobs:
             git checkout -b ${tag//v/} $tag
             # 在这里应用你的 patch
             git am ../fingerprint.patch
-            cp ../push.yaml ./
+            cp ../push.yaml .github/workflows
             git add .
             git commit -m "add actions for build"
             git tag -d ${tag}

@@ -27,7 +27,7 @@ jobs:
       - name: copy patch file
         run: |
           cp fingerprint.patch ../
-          cp .github/workflows/push.yaml ../
+          cp .github/workflows/build.yaml ../
 
       - name: record lastest tag
         run: |
@@ -59,6 +59,9 @@ jobs:
             git checkout -b ${tag//v/} $tag
             # 在这里应用你的 patch
             git am ../fingerprint.patch
+            cp ../build.yaml .github/workflows/build.yaml
+            git add .
+            git commit -m "add action for build"
             git push -u origin ${tag//v/} -f
             git tag -d ${tag}
             git tag ${tag}

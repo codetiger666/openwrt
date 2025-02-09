@@ -29,8 +29,8 @@ Diy-Part1() {
     /bin/cp  $GITHUB_WORKSPACE/Customize/smartdns_customer $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/smartdns/custom.conf
     # ddns-go
     git clone https://github.com/sirpdboy/luci-app-ddns-go.git --dept=1
-    # mihomo
-    git clone https://github.com/morytyann/OpenWrt-mihomo.git --dept=1
+    # nikki
+    git clone https://github.com/nikkinikki-org/OpenWrt-nikki.git --dept=1
     # fackmesh 使用x-wrt源码
     git clone https://github.com/x-wrt/com.x-wrt.git x --dept=1
     mv x/luci-app-fakemesh/ ./

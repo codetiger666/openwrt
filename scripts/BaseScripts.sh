@@ -2,7 +2,6 @@
 
 Core_x86_64(){
     Author=CodeTiger
-    INCLUND_NGINX=true
 }
 
 Core_xiaomi_ac2100(){
@@ -37,10 +36,10 @@ Diy-Part1() {
     rm -rf x/
     # 获取kernel 指纹
     if [ "${project_device}" = "redmi_ax6000" ]; then
-     curl https://downloads.openwrt.org/releases/${project_version}/targets/mediatek/filogic/openwrt-${project_version}-mediatek-filogic.manifest > kernel.manifest
+       curl https://downloads.openwrt.org/releases/${project_version}/targets/mediatek/filogic/openwrt-${project_version}-mediatek-filogic.manifest > kernel.manifest
     fi
     if [ "${project_device}" = "xiaomi_ac2100" ]; then
-     curl https://downloads.openwrt.org/releases/${project_version}/targets/ramips/mt7621/openwrt-${project_version}-ramips-mt7621.manifest > kernel.manifest
+       curl https://downloads.openwrt.org/releases/${project_version}/targets/ramips/mt7621/openwrt-${project_version}-ramips-mt7621.manifest > kernel.manifest
     fi
     cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $3}' > $GITHUB_WORKSPACE/openwrt/vermagic
     sed -i 's/${ipaddr:-"192.168.1.1"}/${ipaddr:-"10.128.1.1"}/g' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
@@ -72,9 +71,9 @@ Diy-Part1() {
 
 Diy-Part2_xiaomi_ac2100() {
     Date=`date "+%Y%m%d%H%M"`
-	mkdir release || true
-	mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-squashfs-sysupgrade.bin release/"openwrt-xiaomi-ac2100-${project_version}-$Date.bin"
-	mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-kernel.bin release/"openwrt-xiaomi-ac2100-kernel-${project_version}-$Date.bin"
+    mkdir release || true
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-squashfs-sysupgrade.bin release/"openwrt-xiaomi-ac2100-${project_version}-$Date.bin"
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-kernel.bin release/"openwrt-xiaomi-ac2100-kernel-${project_version}-$Date.bin"
     _MD5=$(md5sum release/"xiaomi-ac2100-${project_version}.bin" | cut -d ' ' -f1)
     _MD5_kernel=$(md5sum release/"xiaomi-ac2100-kernel-${project_version}.bin" | cut -d ' ' -f1)
     _SHA256=$(sha256sum release/"xiaomi-ac2100-${project_version}.bin" | cut -d ' ' -f1)
@@ -85,9 +84,9 @@ Diy-Part2_xiaomi_ac2100() {
 
 Diy-Part2_redmi_ax6000() {
     Date=`date "+%Y%m%d%H%M"`
-	mkdir release || true
-	mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-squashfs-sysupgrade.bin release/"openwrt-redmi-ax6000-${project_version}-$Date.bin"
-	mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-initramfs-kernel.bin release/"openwrt-redmi-ax6000-kernel-${project_version}-$Date.bin"
+    mkdir release || true
+    mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-squashfs-sysupgrade.bin release/"openwrt-redmi-ax6000-${project_version}-$Date.bin"
+    mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-initramfs-kernel.bin release/"openwrt-redmi-ax6000-kernel-${project_version}-$Date.bin"
     _MD5=$(md5sum release/"redmi-ax6000-${project_version}.bin" | cut -d ' ' -f1)
     _MD5_kernel=$(md5sum release/"redmi-ax6000-kernel-${project_version}.bin" | cut -d ' ' -f1)
     _SHA256=$(sha256sum release/"redmi-ax6000-${project_version}.bin" | cut -d ' ' -f1)
@@ -98,12 +97,12 @@ Diy-Part2_redmi_ax6000() {
 
 Diy-Part2_x86_64() {
     Date=`date "+%Y%m%d"`
-	mkdir bin/Firmware
-	mv -f bin/targets/x86/64/openwrt-x86-64-generic-ext4-combined-efi.img.gz bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz"
+    mkdir bin/Firmware
+    mv -f bin/targets/x86/64/openwrt-x86-64-generic-ext4-combined-efi.img.gz bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz"
     mv -f bin/targets/x86/64/openwrt-x86-64-generic-ext4-combined.img.gz bin/Firmware/"openwrt-x86-64-$Date.img.gz"
-	_MD5_efi=$(md5sum bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz" | cut -d ' ' -f1)
+    _MD5_efi=$(md5sum bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz" | cut -d ' ' -f1)
     _MD5=$(md5sum bin/Firmware/"openwrt-x86-64-$Date.img.gz" | cut -d ' ' -f1)
-	_SHA256_efi=$(sha256sum bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz" | cut -d ' ' -f1)
+    _SHA256_efi=$(sha256sum bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz" | cut -d ' ' -f1)
     _SHA256=$(sha256sum bin/Firmware/"openwrt-x86-64-$Date.img.gz" | cut -d ' ' -f1)
     echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > bin/Firmware/"openwrt-x86-64-$Date.detail"
     echo -e "\nMD5:${_MD5_efi}\nSHA256:${_SHA256_efi}" > bin/Firmware/"openwrt-x86-64-efi-$Date.detail"

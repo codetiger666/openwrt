@@ -72,21 +72,29 @@ Diy-Part1() {
 Diy-Part2_xiaomi_ac2100() {
     Date=`date "+%Y%m%d%H%M"`
     mkdir release || true
-    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-squashfs-sysupgrade.bin release/"openwrt-xiaomi-ac2100-${project_version}-$Date.bin"
-    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-kernel.bin release/"openwrt-xiaomi-ac2100-kernel-${project_version}-$Date.bin"
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-squashfs-sysupgrade.bin release/"openwrt-xiaomi-ac2100-${project_version}.bin"
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-kernel.bin release/"openwrt-xiaomi-ac2100-kernel-${project_version}.bin"
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-kernel1.bin release/"openwrt-xiaomi-ac2100-kernel1-${project_version}.bin"
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-rootfs0.bin release/"openwrt-xiaomi-ac2100-rootfs0-${project_version}.bin"
     _MD5=$(md5sum release/"xiaomi-ac2100-${project_version}.bin" | cut -d ' ' -f1)
     _MD5_kernel=$(md5sum release/"xiaomi-ac2100-kernel-${project_version}.bin" | cut -d ' ' -f1)
+    _MD5_kernel1=$(md5sum release/"xiaomi-ac2100-kernel1-${project_version}.bin" | cut -d ' ' -f1)
+    _MD5_rootfs0=$(md5sum release/"xiaomi-ac2100-rootfs0-${project_version}.bin" | cut -d ' ' -f1)
     _SHA256=$(sha256sum release/"xiaomi-ac2100-${project_version}.bin" | cut -d ' ' -f1)
     _SHA256_kernel=$(sha256sum release/"xiaomi-ac2100-kernel-${project_version}.bin" | cut -d ' ' -f1)
+    _SHA256_kernel1=$(sha256sum release/"xiaomi-ac2100-kernel1-${project_version}.bin" | cut -d ' ' -f1)
+    _SHA256_rootfs0=$(sha256sum release/"xiaomi-ac2100-rootfs0-${project_version}.bin" | cut -d ' ' -f1)
     echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > release/"xiaomi-ac2100-${project_version}.detail"
     echo -e "\nMD5:${_MD5_kernel}\nSHA256:${_SHA256_kernel}" > release/"xiaomi-ac2100-kernel-${project_version}.detail"
+    echo -e "\nMD5:${_MD5_kernel1}\nSHA256:${_SHA256_kernel1}" > release/"xiaomi-ac2100-kernel1-${project_version}.detail"
+    echo -e "\nMD5:${_MD5_rootfs0}\nSHA256:${_SHA256_rootfs0}" > release/"xiaomi-ac2100-rootfs0-${project_version}.detail"
 }
 
 Diy-Part2_redmi_ax6000() {
     Date=`date "+%Y%m%d%H%M"`
     mkdir release || true
-    mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-squashfs-sysupgrade.bin release/"openwrt-redmi-ax6000-${project_version}-$Date.bin"
-    mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-initramfs-kernel.bin release/"openwrt-redmi-ax6000-kernel-${project_version}-$Date.bin"
+    mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-squashfs-sysupgrade.bin release/"openwrt-redmi-ax6000-${project_version}.bin"
+    mv -f artifacts/redmi_ax6000/targets/mediatek/filogic/openwrt-mediatek-filogic-xiaomi_redmi-router-ax6000-ubootlayout-initramfs-kernel.bin release/"openwrt-redmi-ax6000-kernel-${project_version}.bin"
     _MD5=$(md5sum release/"redmi-ax6000-${project_version}.bin" | cut -d ' ' -f1)
     _MD5_kernel=$(md5sum release/"redmi-ax6000-kernel-${project_version}.bin" | cut -d ' ' -f1)
     _SHA256=$(sha256sum release/"redmi-ax6000-${project_version}.bin" | cut -d ' ' -f1)
@@ -98,12 +106,12 @@ Diy-Part2_redmi_ax6000() {
 Diy-Part2_x86_64() {
     Date=`date "+%Y%m%d"`
     mkdir bin/Firmware
-    mv -f bin/targets/x86/64/openwrt-x86-64-generic-ext4-combined-efi.img.gz bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz"
-    mv -f bin/targets/x86/64/openwrt-x86-64-generic-ext4-combined.img.gz bin/Firmware/"openwrt-x86-64-$Date.img.gz"
-    _MD5_efi=$(md5sum bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz" | cut -d ' ' -f1)
-    _MD5=$(md5sum bin/Firmware/"openwrt-x86-64-$Date.img.gz" | cut -d ' ' -f1)
-    _SHA256_efi=$(sha256sum bin/Firmware/"openwrt-x86-64-efi-$Date.img.gz" | cut -d ' ' -f1)
-    _SHA256=$(sha256sum bin/Firmware/"openwrt-x86-64-$Date.img.gz" | cut -d ' ' -f1)
-    echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > bin/Firmware/"openwrt-x86-64-$Date.detail"
-    echo -e "\nMD5:${_MD5_efi}\nSHA256:${_SHA256_efi}" > bin/Firmware/"openwrt-x86-64-efi-$Date.detail"
+    mv -f bin/targets/x86/64/openwrt-x86-64-generic-ext4-combined-efi.img.gz bin/Firmware/"openwrt-x86-64-efi-${project_version}.img.gz"
+    mv -f bin/targets/x86/64/openwrt-x86-64-generic-ext4-combined.img.gz bin/Firmware/"openwrt-x86-64-${project_version}.img.gz"
+    _MD5_efi=$(md5sum bin/Firmware/"openwrt-x86-64-efi-${project_version}.img.gz" | cut -d ' ' -f1)
+    _MD5=$(md5sum bin/Firmware/"openwrt-x86-64-${project_version}.img.gz" | cut -d ' ' -f1)
+    _SHA256_efi=$(sha256sum bin/Firmware/"openwrt-x86-64-efi-${project_version}.img.gz" | cut -d ' ' -f1)
+    _SHA256=$(sha256sum bin/Firmware/"openwrt-x86-64-${project_version}.img.gz" | cut -d ' ' -f1)
+    echo -e "\nMD5:${_MD5}\nSHA256:${_SHA256}" > bin/Firmware/"openwrt-x86-64-${project_version}.detail"
+    echo -e "\nMD5:${_MD5_efi}\nSHA256:${_SHA256_efi}" > bin/Firmware/"openwrt-x86-64-efi-${project_version}.detail"
 }

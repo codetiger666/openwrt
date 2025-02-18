@@ -74,8 +74,8 @@ Diy-Part2_xiaomi_ac2100() {
     mkdir release || true
     mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-squashfs-sysupgrade.bin release/"openwrt-xiaomi-ac2100-${project_version}.bin"
     mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-kernel.bin release/"openwrt-xiaomi-ac2100-kernel-${project_version}.bin"
-    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-kernel1.bin release/"openwrt-xiaomi-ac2100-kernel1-${project_version}.bin"
-    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-initramfs-rootfs0.bin release/"openwrt-xiaomi-ac2100-rootfs0-${project_version}.bin"
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-squashfs-kernel1.bin release/"openwrt-xiaomi-ac2100-kernel1-${project_version}.bin"
+    mv -f artifacts/xiaomi_ac2100/targets/ramips/mt7621/openwrt-ramips-mt7621-xiaomi_mi-router-ac2100-squashfs-rootfs0.bin release/"openwrt-xiaomi-ac2100-rootfs0-${project_version}.bin"
     _MD5=$(md5sum release/"xiaomi-ac2100-${project_version}.bin" | cut -d ' ' -f1)
     _MD5_kernel=$(md5sum release/"xiaomi-ac2100-kernel-${project_version}.bin" | cut -d ' ' -f1)
     _MD5_kernel1=$(md5sum release/"xiaomi-ac2100-kernel1-${project_version}.bin" | cut -d ' ' -f1)

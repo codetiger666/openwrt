@@ -71,7 +71,7 @@ jobs:
                    \"inline_keyboard\": [
                       [
                           {
-                             \"text\": \"{tag/v}更新日志\",
+                             \"text\": \"${tag/openwrt-}更新日志\",
                              \"url\": \"https://github.com/openwrt/openwrt/releases/tag/$tag\"
                           }
                       ]

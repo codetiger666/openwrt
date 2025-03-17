@@ -27,12 +27,16 @@ Diy-Part1() {
     if [ "${project_device}" = "redmi_ax6000" ]; then
        curl https://downloads.openwrt.org/releases/${project_version}/targets/mediatek/filogic/openwrt-${project_version}-mediatek-filogic.manifest > kernel.manifest
        arch="openwrt-24.10/aarch64_cortex-a53"
+       kmod_arch="mediatek/filogic"
     fi
     if [ "${project_device}" = "xiaomi_ac2100" ]; then
        curl https://downloads.openwrt.org/releases/${project_version}/targets/ramips/mt7621/openwrt-${project_version}-ramips-mt7621.manifest > kernel.manifest
        arch="openwrt-24.10/mipsel_24kc"
+       kmod_arch="ramips/mt7621"
     fi
-    cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $3}' > $GITHUB_WORKSPACE/openwrt/vermagic
+    kernel_finger=$(cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $3}')
+    kernel_version=$(cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $2}')
+    kernel_release=$(cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $4}' | sed 's/r//')
     sed -i 's/${ipaddr:-"192.168.1.1"}/${ipaddr:-"10.128.1.1"}/g' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
     sed -i 's/${ipaddr:-"192.168.$((addr_offset++)).1"}/${ipaddr:-"10.128.$((addr_offset++)).1"}/g' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
     sed -i "s/timezone='UTC'/timezone='Asia\/Shanghai'/g" $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
@@ -40,7 +44,7 @@ Diy-Part1() {
     sed -i 's/1.openwrt.pool.ntp.org/time1.cloud.tencent.com/g' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
     sed -i '/2.openwrt.pool.ntp.org/d' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
     sed -i '/3.openwrt.pool.ntp.org/d' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
-    #sed -i '/mkhash md5/c\\tcp $(TOPDIR)\/vermagic $(LINUX_DIR)\/.vermagic' $GITHUB_WORKSPACE/openwrt/include/kernel-defaults.mk
+    echo "${kernel_finger}" > $GITHUB_WORKSPACE/openwrt/vermagic
     mkdir -p $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/config
     mkdir -p $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/codetiger
     mkdir -p $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/keys
@@ -55,6 +59,7 @@ Diy-Part1() {
     cd $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/config
     /bin/cp $GITHUB_WORKSPACE/Customize/nginx ./nginx
     echo "src/gz codetiger https://codetiger666.github.io/openwrt-package/$arch" >>  $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/customfeeds.conf
+    echo "src/gz kmod https://downloads.openwrt.org/releases/${project_version}/targets/${kmod_arch}/kmods/${kernel_version}-${kernel_release}-${kernel_finger}" >>  $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/customfeeds.conf
     /bin/cp $GITHUB_WORKSPACE/Customize/a6a65dcebb238998 $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/keys
     # 服务监听脚本
     cd $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/codetiger

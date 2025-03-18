@@ -63,6 +63,7 @@ jobs:
       - name: update go
         run: |
           sed -i 's/GO_VERSION_PATCH:=4/GO_VERSION_PATCH:=6/g' openwrt/package/feeds/packages/golang/Makefile
+          sed -i 's/PKG_HASH:=ad345ac421e90814293a9699cca19dd5238251c3f687980bbcae28495b263531/PKG_HASH:=039c5b04e65279daceee8a6f71e70bd05cf5b801782b6f77c6e19e2ed0511222/g' openwrt/package/feeds/packages/golang/Makefile
 
       - name: ${{ matrix.device }} make defconfig
         run: |

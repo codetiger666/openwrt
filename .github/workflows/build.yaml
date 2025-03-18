@@ -60,6 +60,10 @@ jobs:
           Diy-Part1
           echo "Artifacts_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
+      - name: update go
+        run: |
+          sed -i 's/GO_VERSION_PATCH:=4/GO_VERSION_PATCH:=6/g' openwrt/package/feeds/packages/golang/Makefile
+
       - name: ${{ matrix.device }} make defconfig
         run: |
           [ -f ${{ matrix.device }}.config ] && mv ${{ matrix.device }}.config openwrt/.config

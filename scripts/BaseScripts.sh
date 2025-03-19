@@ -34,9 +34,9 @@ Diy-Part1() {
        arch="openwrt-24.10/mipsel_24kc"
        kmod_arch="ramips/mt7621"
     fi
-    kernel_finger=$(cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $3}')
-    kernel_version=$(cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $2}')
-    kernel_release=$(cat kernel.manifest | grep kernel | grep kernel | awk -F'~|-' '{print $4}' | sed 's/r//')
+    kernel_finger=$(cat kernel.manifest | grep kernel | awk -F'~|-' '{print $3}')
+    kernel_version=$(cat kernel.manifest | grep kernel | awk -F'~|-' '{print $2}' | sed 's/ //')
+    kernel_release=$(cat kernel.manifest | grep kernel | awk -F'~|-' '{print $4}' | sed 's/r//')
     sed -i 's/${ipaddr:-"192.168.1.1"}/${ipaddr:-"10.128.1.1"}/g' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
     sed -i 's/${ipaddr:-"192.168.$((addr_offset++)).1"}/${ipaddr:-"10.128.$((addr_offset++)).1"}/g' $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate
     sed -i "s/timezone='UTC'/timezone='Asia\/Shanghai'/g" $GITHUB_WORKSPACE/openwrt/package/base-files/files/bin/config_generate

@@ -13,6 +13,9 @@ Core_redmi_ax6000(){
 }
 
 Diy-Part1() {
+    # 删除默认源中的包
+    rm -rf $GITHUB_WORKSPACE/openwrt/feeds/packages/net/smartdns
+    rm -rf $GITHUB_WORKSPACE/openwrt/feeds/luci/applications/luci-app-smartdns
     cd $GITHUB_WORKSPACE/openwrt/package
     mkdir codetiger
     cd $GITHUB_WORKSPACE/openwrt/package/codetiger

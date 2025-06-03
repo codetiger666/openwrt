@@ -142,15 +142,14 @@ jobs:
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false')
 
       - name: get release body
-        id: release_body
         run: |
-          echo "RELEASE_BODY=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body')" >> $GITHUB_OUTPUT
+          echo "RELEASE_BODY=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body')" > release_body
       
       - name: Upload Firmware to Releases
         uses: softprops/action-gh-release@master
         with:
           files: release/*
-          body: ${{ steps.release_body.outputs.RELEASE_BODY }}
+          body_path: release_body
           
       - name: send message
         run: |

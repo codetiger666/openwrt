@@ -140,11 +140,17 @@ jobs:
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@main
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false')
+
+      - name: get release body
+        id: release_body
+        run: |
+          echo "RELEASE_BODY=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body')" >> $GITHUB_OUTPU
       
       - name: Upload Firmware to Releases
         uses: softprops/action-gh-release@master
         with:
           files: release/*
+          body: ${{ steps.release_body.outputs.RELEASE_BODY }}
           
       - name: send message
         run: |

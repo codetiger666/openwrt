@@ -52,6 +52,18 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      - name: update go version
+        run: |
+          cd openwrt
+          # go_info=$(curl -s https://go.dev/dl/?mode=json)
+          # go_version=$(echo "$go_info" | jq -r '.[0].version' | sed 's/^go//')
+          # go_hash=$(echo "$go_info" | jq -r '.[0].files[0].sha256')
+          # sed -E -i "s/GO_VERSION_MAJOR_MINOR:=.*/GO_VERSION_MAJOR_MINOR:=$(echo $go_version | sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/')/" feeds/packages/lang/golang/golang/Makefile
+          # sed -E -i "s/GO_VERSION_PATCH:=.*/GO_VERSION_PATCH:=$(echo $go_version | sed -E 's/.*\.([0-9]+)/\1/')/" feeds/packages/lang/golang/golang/Makefile
+          # sed -E -i "s/PKG_HASH:=.*/PKG_HASH:=$go_hash/" feeds/packages/lang/golang/golang/Makefile
+          # cat feeds/packages/lang/golang/golang/Makefile
+          curl https://raw.githubusercontent.com/openwrt/packages/master/lang/golang/golang/Makefile > feeds/packages/lang/golang/golang/Makefile
+
       - name: ${{ matrix.device }} Run Diy-Part1 Scripts
         run: |
           source $HOME/.profile

@@ -144,7 +144,7 @@ jobs:
       - name: get release body
         id: release_body
         run: |
-          echo "RELEASE_BODY=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body')" >> $GITHUB_OUTPU
+          echo "RELEASE_BODY=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body')" >> $GITHUB_OUTPUT
       
       - name: Upload Firmware to Releases
         uses: softprops/action-gh-release@master

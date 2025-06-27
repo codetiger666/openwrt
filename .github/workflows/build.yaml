@@ -36,6 +36,19 @@ jobs:
           echo "RELEASE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           source $HOME/.profile
 
+      - name: Free Disk Space
+        uses: endersonmenezes/free-disk-space@v2
+        with:
+          remove_android: true
+          remove_dotnet: true
+          remove_haskell: true
+          remove_tool_cache: true
+          remove_swap: true
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
+          remove_packages_one_command: true
+          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
+          testing: false
+
       - name: Initialization environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -143,7 +156,7 @@ jobs:
 
       - name: get release body
         run: |
-          echo "RELEASE_BODY=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body')" > release_body
+          curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body' > release_body
       
       - name: Upload Firmware to Releases
         uses: softprops/action-gh-release@master

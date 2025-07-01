@@ -77,6 +77,11 @@ jobs:
           # cat feeds/packages/lang/golang/golang/Makefile
           curl https://raw.githubusercontent.com/openwrt/packages/master/lang/golang/golang/Makefile > feeds/packages/lang/golang/golang/Makefile
 
+      - name: update rust version
+        run: |
+          cd openwrt
+          curl https://raw.githubusercontent.com/codetiger666/openwrt-gh-action-sdk/refs/heads/main/packages/rust/Makefile > feeds/packages/lang/rust/Makefile
+
       - name: ${{ matrix.device }} Run Diy-Part1 Scripts
         run: |
           source $HOME/.profile

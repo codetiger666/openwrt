@@ -53,8 +53,7 @@ jobs:
           tag=$(git tag -l --sort=-creatordate | head -n 1)
           echo "Processing tag: $tag"
           echo "lastest tag: $lastest_tag"
-          if [ "$lastest_tag" = "$tag" ]; then
-            echo "the new tag is handled";
+          if [[ $tag == v23* ]]; then
             version=${tag/openwrt-}
             version=${version//./\\\\.}
             curl -X POST \
@@ -65,7 +64,7 @@ jobs:
                 --header 'Content-Type: application/json' \
                 --data "{
                 \"chat_id\": \"${{ secrets.TG_BOT_USER_ID }}\",
-                \"text\": \"\\\\[openwrt\\\\] \\\\[⭕ 已经编译完成\\\\]\n版本:\`$version\`\",
+                \"text\": \"\\\\[openwrt\\\\] \\\\[⭕ 跳过编译\\\\]\n版本:\`$version\`\",
                 \"parse_mode\": \"MarkdownV2\",
                 \"reply_markup\": {
                    \"inline_keyboard\": [
@@ -79,45 +78,72 @@ jobs:
                 }
                 }"
           else
-            git checkout -b ${tag//v/} $tag
-            # 在这里应用你的 patch
-            git am ../fingerprint.patch
-            cp ../build.yaml .github/workflows/build.yaml
-            git add .
-            git commit -m "add action for build"
-            git push -u origin ${tag//v/} -f
-            git tag -d ${tag}
-            git tag ${tag}
-            git push origin ${tag} -f
-            echo "触发编译"
-            curl -v -X POST \
-            https://api.github.com/repos/codetiger666/openwrt/actions/workflows/build.yaml/dispatches \
-            -H "Authorization: Bearer ${{ secrets.ACCESS_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -d "{\"ref\":\"$tag\",\"inputs\":{\"ssh\":\"false\"}}"
-            version=${tag/openwrt-}
-            version=${version//./\\\\.}
-            curl -X POST \
-                --url https://api.telegram.org/bot${{ secrets.TG_BOT_KEY }}/sendMessage \
-                --header 'Accept: */*' \
-                --header 'Accept-Encoding: gzip, deflate, br' \
-                --header 'Connection: keep-alive' \
-                --header 'Content-Type: application/json' \
-                --data "{
-                \"chat_id\": \"${{ secrets.TG_BOT_USER_ID }}\",
-                \"text\": \"\\\\[openwrt\\\\] \\\\[🟢 触发编译\\\\]\n版本:\`$version\`\",
-                \"parse_mode\": \"MarkdownV2\",
-                \"reply_markup\": {
-                   \"inline_keyboard\": [
-                      [
-                          {
-                             \"text\": \"${tag/v}更新日志\",
-                             \"url\": \"https://github.com/openwrt/openwrt/releases/tag/$tag\"
-                          }
-                      ]
-                   ]
-                }
-                }"
+            if [ "$lastest_tag" = "$tag" ]; then
+              echo "the new tag is handled";
+              version=${tag/openwrt-}
+              version=${version//./\\\\.}
+              curl -X POST \
+                  --url https://api.telegram.org/bot${{ secrets.TG_BOT_KEY }}/sendMessage \
+                  --header 'Accept: */*' \
+                  --header 'Accept-Encoding: gzip, deflate, br' \
+                  --header 'Connection: keep-alive' \
+                  --header 'Content-Type: application/json' \
+                  --data "{
+                  \"chat_id\": \"${{ secrets.TG_BOT_USER_ID }}\",
+                  \"text\": \"\\\\[openwrt\\\\] \\\\[⭕ 已经编译完成\\\\]\n版本:\`$version\`\",
+                  \"parse_mode\": \"MarkdownV2\",
+                  \"reply_markup\": {
+                    \"inline_keyboard\": [
+                        [
+                            {
+                              \"text\": \"${tag/openwrt-}更新日志\",
+                              \"url\": \"https://github.com/openwrt/openwrt/releases/tag/$tag\"
+                            }
+                        ]
+                    ]
+                  }
+                  }"
+            else
+              git checkout -b ${tag//v/} $tag
+              # 在这里应用你的 patch
+              git am ../fingerprint.patch
+              cp ../build.yaml .github/workflows/build.yaml
+              git add .
+              git commit -m "add action for build"
+              git push -u origin ${tag//v/} -f
+              git tag -d ${tag}
+              git tag ${tag}
+              git push origin ${tag} -f
+              echo "触发编译"
+              curl -v -X POST \
+              https://api.github.com/repos/codetiger666/openwrt/actions/workflows/build.yaml/dispatches \
+              -H "Authorization: Bearer ${{ secrets.ACCESS_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d "{\"ref\":\"$tag\",\"inputs\":{\"ssh\":\"false\"}}"
+              version=${tag/openwrt-}
+              version=${version//./\\\\.}
+              curl -X POST \
+                  --url https://api.telegram.org/bot${{ secrets.TG_BOT_KEY }}/sendMessage \
+                  --header 'Accept: */*' \
+                  --header 'Accept-Encoding: gzip, deflate, br' \
+                  --header 'Connection: keep-alive' \
+                  --header 'Content-Type: application/json' \
+                  --data "{
+                  \"chat_id\": \"${{ secrets.TG_BOT_USER_ID }}\",
+                  \"text\": \"\\\\[openwrt\\\\] \\\\[🟢 触发编译\\\\]\n版本:\`$version\`\",
+                  \"parse_mode\": \"MarkdownV2\",
+                  \"reply_markup\": {
+                    \"inline_keyboard\": [
+                        [
+                            {
+                              \"text\": \"${tag/v}更新日志\",
+                              \"url\": \"https://github.com/openwrt/openwrt/releases/tag/$tag\"
+                            }
+                        ]
+                    ]
+                  }
+                  }"
+            fi
           fi
 
       - name: Remove workflow runs

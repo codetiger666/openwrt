@@ -25,7 +25,7 @@ Diy-Part1() {
     mkdir -p $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/smartdns/domain-set
     wget -O $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/smartdns/domain-set/cn https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/direct-list.txt
     wget -O $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/smartdns/domain-set/ad https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/reject-list.txt
-    /bin/cp  $GITHUB_WORKSPACE/Customize/smartdns_customer $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/smartdns/custom.conf
+    # /bin/cp  $GITHUB_WORKSPACE/Customize/smartdns_customer $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/smartdns/custom.conf
     # 获取kernel 指纹
     if [ "${project_device}" = "redmi_ax6000" ]; then
        curl https://downloads.openwrt.org/releases/${project_version}/targets/mediatek/filogic/openwrt-${project_version}-mediatek-filogic.manifest > kernel.manifest
@@ -60,10 +60,10 @@ Diy-Part1() {
         /bin/cp $GITHUB_WORKSPACE/Customize/newifiD2_dhcp ./dhcp
     fi
     cd $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/config
-    /bin/cp $GITHUB_WORKSPACE/Customize/nginx ./nginx
-    echo "src/gz codetiger https://codetiger666.github.io/openwrt-package/$arch" >>  $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/customfeeds.conf
-    echo "src/gz kmod https://downloads.openwrt.org/releases/${project_version}/targets/${kmod_arch}/kmods/${kernel_version}-${kernel_release}-${kernel_finger}" >>  $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/customfeeds.conf
-    /bin/cp $GITHUB_WORKSPACE/Customize/a6a65dcebb238998 $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/keys
+    # /bin/cp $GITHUB_WORKSPACE/Customize/nginx ./nginx
+    # echo "src/gz codetiger https://codetiger666.github.io/openwrt-package/$arch" >>  $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/customfeeds.conf
+    # echo "src/gz kmod https://downloads.openwrt.org/releases/${project_version}/targets/${kmod_arch}/kmods/${kernel_version}-${kernel_release}-${kernel_finger}" >>  $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/customfeeds.conf
+    # /bin/cp $GITHUB_WORKSPACE/Customize/a6a65dcebb238998 $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/opkg/keys
     # 服务监听脚本
     cd $GITHUB_WORKSPACE/openwrt/package/base-files/files/etc/codetiger
     /bin/cp $GITHUB_WORKSPACE/scripts/servicewatch ./servicewatch

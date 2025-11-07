@@ -1,33 +1,47 @@
-From 92f1d11210b3171b1c2492209c5587c8b54e48fa Mon Sep 17 00:00:00 2001
+From 8aedb9a00a94eb87181f2c05d3e2fd399b9a2f99 Mon Sep 17 00:00:00 2001
 From: codetiger <codetiger806@gmail.com>
-Date: Thu, 6 Nov 2025 08:49:25 +0800
-Subject: [PATCH] chore: add redmi ax6000 uboot layout
+Date: Wed, 5 Feb 2025 21:02:00 +0800
+Subject: [PATCH] add redmi ax6000 uboot layout and change fingerprint
 
 Signed-off-by: codetiger <codetiger806@gmail.com>
 ---
+ include/kernel-defaults.mk                    |  2 +-
  .../uboot-envtools/files/mediatek_filogic     |  1 +
  ...xiaomi-redmi-router-ax6000-ubootlayout.dts | 34 +++++++++++++++++++
- .../filogic/base-files/etc/board.d/01_leds    |  1 +
- .../filogic/base-files/etc/board.d/02_network |  2 ++
+ .../filogic/base-files/etc/board.d/01_leds    |  3 +-
+ .../filogic/base-files/etc/board.d/02_network |  6 ++--
  target/linux/mediatek/image/filogic.mk        | 17 ++++++++++
- 5 files changed, 55 insertions(+)
+ 6 files changed, 59 insertions(+), 4 deletions(-)
  create mode 100644 target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
 
-diff --git a/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic b/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
-index 3f7ab7a..5bcd37b 100644
---- a/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
-+++ b/package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
-@@ -138,6 +138,7 @@ teltonika,rutc50)
- 	;;
- xiaomi,mi-router-ax3000t|\
- xiaomi,mi-router-wr30u-stock|\
+diff --git a/include/kernel-defaults.mk b/include/kernel-defaults.mk
+index cbe415abe6..f9c3ffceb1 100644
+--- a/include/kernel-defaults.mk
++++ b/include/kernel-defaults.mk
+@@ -127,7 +127,7 @@ define Kernel/Configure/Default
+ 		cp $(LINUX_DIR)/.config.set $(LINUX_DIR)/.config.prev; \
+ 	}
+ 	$(_SINGLE) [ -d $(LINUX_DIR)/user_headers ] || $(KERNEL_MAKE) $(if $(findstring uml,$(BOARD)),ARCH=$(ARCH)) INSTALL_HDR_PATH=$(LINUX_DIR)/user_headers headers_install
+-	grep '=[ym]' $(LINUX_DIR)/.config.set | LC_ALL=C sort | $(MKHASH) md5 > $(LINUX_DIR)/.vermagic
++	cp $(TOPDIR)/vermagic $(LINUX_DIR)/.vermagic
+ endef
+ 
+ define Kernel/Configure/Initramfs
+diff --git a/package/boot/uboot-envtools/files/mediatek_filogic b/package/boot/uboot-envtools/files/mediatek_filogic
+index 730a28841e..fc6a4a83fb 100644
+--- a/package/boot/uboot-envtools/files/mediatek_filogic
++++ b/package/boot/uboot-envtools/files/mediatek_filogic
+@@ -48,6 +48,7 @@ tplink,tl-xtr8488|\
+ xiaomi,mi-router-ax3000t-ubootmod|\
+ xiaomi,mi-router-wr30u-ubootmod|\
+ xiaomi,redmi-router-ax6000-ubootmod|\
 +xiaomi,redmi-router-ax6000-ubootlayout|\
- xiaomi,redmi-router-ax6000-stock)
- 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x10000" "0x20000"
- 	ubootenv_add_uci_sys_config "/dev/mtd2" "0x0" "0x10000" "0x20000"
+ zyxel,ex5601-t0-ubootmod)
+ 	ubootenv_add_ubi_default
+ 	;;
 diff --git a/target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts b/target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
 new file mode 100644
-index 0000000..d08efb6
+index 0000000000..d08efb6bb4
 --- /dev/null
 +++ b/target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
 @@ -0,0 +1,34 @@
@@ -67,44 +81,50 @@ index 0000000..d08efb6
 +};
 \ No newline at end of file
 diff --git a/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds b/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
-index 6b5c920..233862b 100644
+index 5048e9bb8f..5aa0d034ab 100644
 --- a/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
 +++ b/target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
-@@ -240,6 +240,7 @@ xiaomi,mi-router-wr30u-ubootmod)
+@@ -120,7 +120,8 @@ xiaomi,mi-router-wr30u-ubootmod)
  	ucidef_set_led_netdev "wan" "wan" "blue:wan" "wan" "link tx rx"
  	;;
  xiaomi,redmi-router-ax6000-stock|\
-+xiaomi,redmi-router-ax6000-ubootlayout|\
- xiaomi,redmi-router-ax6000-ubootmod)
+-xiaomi,redmi-router-ax6000-ubootmod)
++xiaomi,redmi-router-ax6000-ubootmod|\
++xiaomi,redmi-router-ax6000-ubootlayout)
  	ucidef_set_led_netdev "wan" "wan" "rgb:network" "wan"
  	;;
+ zbtlink,zbt-z8103ax)
 diff --git a/target/linux/mediatek/filogic/base-files/etc/board.d/02_network b/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
-index ba1465d..4d70691 100644
+index b9c149d072..3ef5c4dfe5 100644
 --- a/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
 +++ b/target/linux/mediatek/filogic/base-files/etc/board.d/02_network
-@@ -167,6 +167,7 @@ mediatek_setup_interfaces()
+@@ -123,7 +123,8 @@ mediatek_setup_interfaces()
  	xiaomi,mi-router-wr30u-stock|\
  	xiaomi,mi-router-wr30u-ubootmod|\
  	xiaomi,redmi-router-ax6000-stock|\
-+	xiaomi,redmi-router-ax6000-ubootlayout|\
- 	xiaomi,redmi-router-ax6000-ubootmod)
+-	xiaomi,redmi-router-ax6000-ubootmod)
++	xiaomi,redmi-router-ax6000-ubootmod|\
++	xiaomi,redmi-router-ax6000-ubootlayout)
  		ucidef_set_interfaces_lan_wan "lan2 lan3 lan4" wan
  		;;
-@@ -246,6 +247,7 @@ mediatek_setup_macs()
+ 	*)
+@@ -180,7 +181,8 @@ mediatek_setup_macs()
  	xiaomi,mi-router-wr30u-stock|\
  	xiaomi,mi-router-wr30u-ubootmod|\
  	xiaomi,redmi-router-ax6000-stock|\
-+	xiaomi,redmi-router-ax6000-ubootlayout|\
- 	xiaomi,redmi-router-ax6000-ubootmod)
+-	xiaomi,redmi-router-ax6000-ubootmod)
++	xiaomi,redmi-router-ax6000-ubootmod|\
++	xiaomi,redmi-router-ax6000-ubootlayout)
  		wan_mac=$(mtd_get_mac_ascii Bdata ethaddr_wan)
  		label_mac=$wan_mac
+ 		;;
 diff --git a/target/linux/mediatek/image/filogic.mk b/target/linux/mediatek/image/filogic.mk
-index cc97a38..77f16e3 100644
+index 135a954400..2b3a94c13b 100644
 --- a/target/linux/mediatek/image/filogic.mk
 +++ b/target/linux/mediatek/image/filogic.mk
-@@ -2537,6 +2537,23 @@ endif
+@@ -1573,6 +1573,23 @@ endif
  endef
- TARGET_DEVICES += xiaomi_redmi-router-ax6000-stock
+ TARGET_DEVICES += xiaomi_redmi-router-ax6000-ubootmod
  
 +define Device/xiaomi_redmi-router-ax6000-ubootlayout
 +  DEVICE_VENDOR := Xiaomi
@@ -123,9 +143,9 @@ index cc97a38..77f16e3 100644
 +endef
 +TARGET_DEVICES += xiaomi_redmi-router-ax6000-ubootlayout
 +
- define Device/xiaomi_redmi-router-ax6000-ubootmod
-   DEVICE_VENDOR := Xiaomi
-   DEVICE_MODEL := Redmi Router AX6000 (OpenWrt U-Boot layout)
+ define Device/yuncore_ax835
+   DEVICE_VENDOR := YunCore
+   DEVICE_MODEL := AX835
 -- 
-2.51.0.windows.1
+2.40.0.windows.1
 

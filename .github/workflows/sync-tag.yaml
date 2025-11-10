@@ -39,6 +39,7 @@ jobs:
         run: |
           git config --global user.email ${{ secrets.email }}
           git config --global user.name "codetiger666"
+          git config --global pull.rebase true
 
       - name: Add upstream repository
         run: |
@@ -48,14 +49,13 @@ jobs:
           # git fetch upstream --tags
           git fetch upstream main
           git remote set-url origin https://${{ secrets.ACCESS_TOKEN }}@github.com/codetiger666/openwrt.git
-          git checkout -b aaa upstream/main
-          git checkout 1817e0751ffdf0fa76c1138380d3a5660ca13be0
-          git checkout -b bbb
-          git am ../fingerprint.patch
+          git pull upstream main || true
+          # git am ../fingerprint.patch
           cp ../build.yaml .github/workflows
-          git add .
-          git commit -m "add action for build"
-          git push origin bbb:main -f
+          git add . || true
+          git commit -m "add action for build" || true
+          git pull --rebase origin main || true
+          git push origin main || true
 
 
       - name: SSH connection to Actions

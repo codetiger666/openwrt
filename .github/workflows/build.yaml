@@ -1,0 +1,201 @@
+name: build-openwrt
+
+on:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: '是否开启ssh调试'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  build:
+    name: build ${{ matrix.device }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        device:
+          - redmi_ax6000
+          - xiaomi_ac2100
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          ref: actions
+
+      # 初始化环境变量
+      - name: ${{ matrix.device }} init-env
+        run: |
+          echo "export project_version=${GITHUB_REF_NAME#v}" >> $HOME/.profile
+          echo "export project_device=${{ matrix.device }}" >> $HOME/.profile
+          echo "RELEASE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+          source $HOME/.profile
+
+      - name: Free Disk Space
+        uses: endersonmenezes/free-disk-space@v2
+        with:
+          remove_android: true
+          remove_dotnet: true
+          remove_haskell: true
+          remove_tool_cache: true
+          remove_swap: true
+          remove_packages: "azure-cli google-cloud-cli microsoft-edge-stable google-chrome-stable firefox postgresql* temurin-* *llvm* mysql* dotnet-sdk-*"
+          remove_packages_one_command: true
+          remove_folders: "/usr/share/swift /usr/share/miniconda /usr/share/az* /usr/share/glade* /usr/local/lib/node_modules /usr/local/share/chromium /usr/local/share/powershell"
+          testing: false
+
+      - name: Initialization environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          curl https://raw.githubusercontent.com/codetiger666/linux/refs/heads/master/scripts/linux/init-github-ubuntu | bash
+
+      - name: ${{ matrix.device }} Clone Openwrt source code
+        run: |
+          git clone -b ${GITHUB_REF_NAME} https://github.com/codetiger666/openwrt.git openwrt
+
+      - name: ${{ matrix.device }} Update & Install Feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: update go version
+        run: |
+          cd openwrt
+          # go_info=$(curl -s https://go.dev/dl/?mode=json)
+          # go_version=$(echo "$go_info" | jq -r '.[0].version' | sed 's/^go//')
+          # go_hash=$(echo "$go_info" | jq -r '.[0].files[0].sha256')
+          # sed -E -i "s/GO_VERSION_MAJOR_MINOR:=.*/GO_VERSION_MAJOR_MINOR:=$(echo $go_version | sed -E 's/^([0-9]+\.[0-9]+)\..*/\1/')/" feeds/packages/lang/golang/golang/Makefile
+          # sed -E -i "s/GO_VERSION_PATCH:=.*/GO_VERSION_PATCH:=$(echo $go_version | sed -E 's/.*\.([0-9]+)/\1/')/" feeds/packages/lang/golang/golang/Makefile
+          # sed -E -i "s/PKG_HASH:=.*/PKG_HASH:=$go_hash/" feeds/packages/lang/golang/golang/Makefile
+          # cat feeds/packages/lang/golang/golang/Makefile
+          curl https://raw.githubusercontent.com/openwrt/packages/master/lang/golang/golang/Makefile > feeds/packages/lang/golang/golang/Makefile
+
+      - name: update rust version
+        run: |
+          cd openwrt
+          curl https://raw.githubusercontent.com/codetiger666/openwrt-gh-action-sdk/refs/heads/main/packages/rust/Makefile > feeds/packages/lang/rust/Makefile
+
+      - name: ${{ matrix.device }} Run Diy-Part1 Scripts
+        run: |
+          source $HOME/.profile
+          source scripts/BaseScripts.sh
+          Core_${{ matrix.device }}
+          Diy-Part1
+          echo "Artifacts_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+      - name: ${{ matrix.device }} make defconfig
+        run: |
+          [ -f ${{ matrix.device }}.config ] && mv ${{ matrix.device }}.config openwrt/.config
+          cd openwrt
+          make defconfig
+
+      - name: ${{ matrix.device }} SSH connection to Actions
+        uses: P3TERX/ssh2actions@main
+        if: github.event.inputs.ssh == 'true'
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: ${{ matrix.device }} Download Packages
+        working-directory: ./openwrt
+        run: |
+          make download -j V=s
+
+      - name: ${{ matrix.device }} Compile the Openwrt
+        working-directory: ./openwrt
+        run: |
+          make -j$(nproc) V=s
+
+      - name: ${{ matrix.device }} Recompile the Openwrt
+        working-directory: ./openwrt
+        if: failure()
+        run: |
+          make -j1 V=s
+
+      - name: Upload Firmware to Artifacts
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ matrix.device }}
+          path: openwrt/bin
+
+
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+        with:
+          ref: actions
+
+      - name: Init ENV
+        run: |
+           echo "RELEASE_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV 
+           echo "export project_version=${GITHUB_REF_NAME#v}" >> $HOME/.profile
+
+      - name: download artifact
+        uses: actions/download-artifact@main
+        with:
+          path: artifacts
+
+      - name: copy file to Releases
+        run: |
+          source scripts/BaseScripts.sh
+          source $HOME/.profile
+          devices=("redmi_ax6000" "xiaomi_ac2100")
+          for device in "${devices[@]}"; do
+            Diy-Part2_$device
+          done
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@main
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false')
+
+      - name: get release body
+        run: |
+          curl -s https://api.github.com/repos/openwrt/openwrt/releases/tags/${GITHUB_REF_NAME} | jq -r '.body' > release_body
+      
+      - name: Upload Firmware to Releases
+        uses: softprops/action-gh-release@master
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: release/*
+          body_path: release_body
+          
+      - name: send message
+        run: |
+          curl -X POST \
+                --url https://api.telegram.org/bot${{ secrets.TG_BOT_KEY }}/sendMessage \
+                --header 'Accept: */*' \
+                --header 'Accept-Encoding: gzip, deflate, br' \
+                --header 'Connection: keep-alive' \
+                --header 'Content-Type: application/json' \
+                --data "{
+                \"chat_id\": \"${{ secrets.TG_BOT_USER_ID }}\",
+                \"text\": \"\\\\[openwrt\\\\] \\\\[✅ 编译成功\\\\]\n版本:\`${GITHUB_REF_NAME#v}\`\",
+                \"parse_mode\": \"MarkdownV2\",
+                \"reply_markup\": {
+                   \"inline_keyboard\": [
+                      [
+                          {
+                             \"text\": \"openwrt${GITHUB_REF_NAME#v}更新日志\",
+                             \"url\": \"https://github.com/openwrt/openwrt/releases/tag/openwrt-${GITHUB_REF_NAME#v}\"
+                          }
+                      ]
+                   ]
+                }
+                }"
+
+      - name: Remove workflow runs
+        uses: GitRML/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 3

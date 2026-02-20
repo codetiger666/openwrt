@@ -62,6 +62,7 @@ jobs:
       - name: ${{ matrix.device }} Update & Install Feeds
         run: |
           cd openwrt
+          sed -i 's|https://git.openwrt.org/|https://github.com/openwrt/|g' feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 

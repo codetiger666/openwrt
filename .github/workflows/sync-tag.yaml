@@ -34,7 +34,7 @@ jobs:
       - name: record lastest tag
         run: |
           echo "export lastest_tag=$(curl -s https://api.github.com/repos/codetiger666/openwrt/tags?per_page=1 | jq -r '.[0].name')" >> $HOME/.profile
-          echo "export openwrt_lastest_tag=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases?per_page=1 | jq -r '.[0].name')" >> $HOME/.profile
+          echo "export openwrt_lastest_tag=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/latest | jq -r '.tag_name')" >> $HOME/.profile
 
       - name: init git
         run: |

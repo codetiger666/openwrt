@@ -26,9 +26,8 @@ jobs:
           ref: actions
           persist-credentials: false
           
-      - name: copy patch file
+      - name: copy build workflow
         run: |
-          cp fingerprint.patch ../
           cp .github/workflows/build.yaml ../
 
       - name: record lastest tag
@@ -50,7 +49,72 @@ jobs:
             cd openwrt
             git checkout -b ${openwrt_lastest_tag/v} $openwrt_lastest_tag
             git remote add codetiger https://${{ secrets.ACCESS_TOKEN }}@github.com/codetiger666/openwrt.git
-            git am ../fingerprint.patch
+            # Apply firmware tweaks via shell (no patch file, matches fingerprint-24.10.patch)
+            # 1) change kernel fingerprint (vermagic)
+            sed -i "s|grep '=\[ym\]' \$(LINUX_DIR)/.config.set \| LC_ALL=C sort \| \$(MKHASH) md5 > \$(LINUX_DIR)/.vermagic|cp \$(TOPDIR)/vermagic \$(LINUX_DIR)/.vermagic|" include/kernel-defaults.mk
+            # 2) add the ubootlayout board to uboot-envtools (ubi_default block)
+            sed -i '/xiaomi,redmi-router-ax6000-ubootmod)/i\	xiaomi,redmi-router-ax6000-ubootlayout|\\' package/boot/uboot-tools/uboot-envtools/files/mediatek_filogic
+            # 3) create the ubootlayout device tree source
+            printf '// SPDX-License-Identifier: (GPL-2.0 OR MIT)\n' > target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '/dts-v1/;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '#include "mt7986a-xiaomi-redmi-router-ax6000.dtsi"\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '/ {\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tmodel = "Xiaomi Redmi Router AX6000 (uboot layout)";\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tcompatible = "xiaomi,redmi-router-ax6000-ubootlayout", "mediatek,mt7986a";\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '};\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '&spi_nand_flash {\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tmediatek,nmbm;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tmediatek,bmt-max-ratio = <1>;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tmediatek,bmt-max-reserved-blocks = <64>;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '};\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '&partitions {\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tpartition@580000 {\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\tlabel = "crash";\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\treg = <0x580000 0x40000>;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\tread-only;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t};\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tpartition@5c0000 {\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\tlabel = "crash_log";\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\treg = <0x5c0000 0x40000>;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\tread-only;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t};\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\tpartition@600000 {\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\tlabel = "ubi";\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t\treg = <0x600000 0x6e00000>;\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '\t};\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            printf '};\n' >> target/linux/mediatek/dts/mt7986a-xiaomi-redmi-router-ax6000-ubootlayout.dts
+            # 4) wire up LEDs: turn ubootmod terminal into continuation and add ubootlayout
+            sed -i '/xiaomi,redmi-router-ax6000-ubootmod)$/a\	xiaomi,redmi-router-ax6000-ubootlayout)' target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
+            sed -i 's/xiaomi,redmi-router-ax6000-ubootmod)/xiaomi,redmi-router-ax6000-ubootmod|\\/' target/linux/mediatek/filogic/base-files/etc/board.d/01_leds
+            # 5) wire up network & mac for the new board (interfaces + macs)
+            sed -i '/xiaomi,redmi-router-ax6000-ubootmod)$/a\	xiaomi,redmi-router-ax6000-ubootlayout)' target/linux/mediatek/filogic/base-files/etc/board.d/02_network
+            sed -i 's/xiaomi,redmi-router-ax6000-ubootmod)/xiaomi,redmi-router-ax6000-ubootmod|\\/' target/linux/mediatek/filogic/base-files/etc/board.d/02_network
+            # 6) register the ubootlayout image build rules after the ubootmod device
+            printf '\n' > ../ax6000-ubootlayout.mk
+            printf 'define Device/xiaomi_redmi-router-ax6000-ubootlayout\n' >> ../ax6000-ubootlayout.mk
+            printf '  DEVICE_VENDOR := Xiaomi\n' >> ../ax6000-ubootlayout.mk
+            printf '  DEVICE_MODEL := Redmi Router AX6000 (uboot layout)\n' >> ../ax6000-ubootlayout.mk
+            printf '  DEVICE_DTS := mt7986a-xiaomi-redmi-router-ax6000-ubootlayout\n' >> ../ax6000-ubootlayout.mk
+            printf '  DEVICE_DTS_DIR := ../dts\n' >> ../ax6000-ubootlayout.mk
+            printf '  DEVICE_PACKAGES := kmod-leds-ws2812b kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware\n' >> ../ax6000-ubootlayout.mk
+            printf '  UBINIZE_OPTS := -E 5\n' >> ../ax6000-ubootlayout.mk
+            printf '  BLOCKSIZE := 128k\n' >> ../ax6000-ubootlayout.mk
+            printf '  PAGESIZE := 2048\n' >> ../ax6000-ubootlayout.mk
+            printf 'ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)\n' >> ../ax6000-ubootlayout.mk
+            printf '  ARTIFACTS := initramfs-factory.ubi\n' >> ../ax6000-ubootlayout.mk
+            printf '  ARTIFACT/initramfs-factory.ubi := append-image-stage initramfs-kernel.bin | ubinize-kernel\n' >> ../ax6000-ubootlayout.mk
+            printf 'endif\n' >> ../ax6000-ubootlayout.mk
+            printf '  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata\n' >> ../ax6000-ubootlayout.mk
+            printf 'endef\n' >> ../ax6000-ubootlayout.mk
+            printf 'TARGET_DEVICES += xiaomi_redmi-router-ax6000-ubootlayout\n' >> ../ax6000-ubootlayout.mk
+            sed -i '/^TARGET_DEVICES += xiaomi_redmi-router-ax6000-ubootmod$/r ../ax6000-ubootlayout.mk' target/linux/mediatek/image/filogic.mk
+            rm -f ../ax6000-ubootlayout.mk
             rm -rf .github/workflows/*
             cp ../../build.yaml .github/workflows
             git add . || true
